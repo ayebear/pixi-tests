@@ -30,8 +30,8 @@ class RenderWrap {
 			x: Math.floor(this.stage.width),
 			y: Math.floor(this.stage.height)
 		}
-		console.log(renderSize)
-		console.log(stageSize)
+		// console.log(renderSize)
+		// console.log(stageSize)
 
 		// Create render texture to fit stage
 		this.gridTexture = PIXI.RenderTexture.create(stageSize.x, stageSize.y)
@@ -40,11 +40,11 @@ class RenderWrap {
 		this.app.stage.removeChildren()
 
 		// Calculate the minimum grid size to cover the rendering area
-		const width = Math.ceil(renderSize.x / stageSize.x)
-		const height = Math.ceil(renderSize.y / stageSize.y)
+		const width = Math.ceil((renderSize.x / this.scale) / stageSize.x)
+		const height = Math.ceil((renderSize.y / this.scale) / stageSize.y)
 
 		// Generate the sprites
-		console.log(`Grid size: ${width * 2} by ${height * 2}`)
+		// console.log(`Grid size: ${width * 2} by ${height * 2}`)
 		for (let y = 0; y < height; ++y) {
 			for (let x = 0; x < width; ++x) {
 				// Add a sprite for this position, with the grid texture
@@ -56,6 +56,16 @@ class RenderWrap {
 				this.app.stage.addChild(sprite)
 			}
 		}
+	}
+
+	get scale() {
+		return this.app.stage.scale.x
+	}
+
+	set scale(scale) {
+		this.app.stage.scale.x = scale
+		this.app.stage.scale.y = scale
+		this.update()
 	}
 
 	render() {
@@ -72,6 +82,14 @@ class Test {
 		this.registerKey('s', 'y', 1)
 		this.registerKey('a', 'x', -1)
 		this.registerKey('d', 'x', 1)
+
+		// Zooming in/out
+		this.listener.simple_combo('o', () => {
+			this.wrapper.scale = 0.98 * this.wrapper.scale
+		})
+		this.listener.simple_combo('i', () => {
+			this.wrapper.scale = 1.02 * this.wrapper.scale
+		})
 
 		this.stage = new PIXI.Container()
 
