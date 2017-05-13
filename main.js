@@ -33,11 +33,11 @@ class RenderWrap {
 
 		let container = new PIXI.Container()
 
-		// Adjust so that sprites are only on the screen
+		// Adjust so that sprites are only on the screen, basically by a multiple of the stage size
 		// TODO: Will need to take into account the app.stage "camera" position
-		const delta = {
-			x: (spriteToRepeat.x % stageSize.x - spriteToRepeat.x),
-			y: (spriteToRepeat.y % stageSize.y - spriteToRepeat.y)
+		const diff = {
+			x: Math.ceil(spriteToRepeat.x / stageSize.x) * stageSize.x,
+			y: Math.ceil(spriteToRepeat.y / stageSize.y) * stageSize.y
 		}
 
 		// Generate the sprites
@@ -45,12 +45,12 @@ class RenderWrap {
 			for (let x = 0; x < width; ++x) {
 				// Duplicate the sprite for all the positions
 				const repeatOffset = {
-					x: x * stageSize.x + delta.x,
-					y: y * stageSize.y + delta.y
+					x: x * stageSize.x - diff.x,
+					y: y * stageSize.y - diff.y
 				}
 				let sprite = duplicateSprite(spriteToRepeat, repeatOffset)
-				if (x == 0 && y == 0)
-					console.log(sprite.x, sprite.y)
+				// if (x == 0 && y == 0)
+					// console.log(sprite.x, sprite.y)
 
 				// Add this sprite to the main rendering stage
 				container.addChild(sprite)
