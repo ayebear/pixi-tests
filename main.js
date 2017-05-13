@@ -9,12 +9,13 @@ function interpolate(start, end, ratio = 0.5) {
 
 function duplicateSprite(sprite, offset) {
 	let clone = new PIXI.Sprite(sprite.texture)
-	// clone.anchor.set(0.5)
+	clone.anchor.x = sprite.anchor.x
+	clone.anchor.y = sprite.anchor.y
 	clone.x = sprite.x + offset.x
 	clone.y = sprite.y + offset.y
 	clone.zIndex = sprite.zIndex
 
-	// TODO: Copy all other properties such as anchor points, scaling, colors, etc.
+	// TODO: Copy all other properties such as scaling, colors, etc.
 	// TODO: Recursively copy objects, or flatten them out
 
 	return clone
@@ -132,17 +133,12 @@ class Test {
 		this.bunny = PIXI.Sprite.fromImage('bunny.png')
 		this.background = PIXI.Sprite.fromImage('background.png')
 
-		// center the sprite's anchor point
-		// this.bunny.anchor.set(0.5);
-
 		// move the sprite to the center of the screen
+		this.bunny.anchor.set(0.5);
 		this.bunny.x = 128;
 		this.bunny.y = 128;
 
-		// let dupe = duplicateSprite(this.bunny, {x: 40, y: 40})
-
 		this.stage.addChild(this.background);
-		// this.stage.addChild(dupe);
 		this.stage.addChild(this.bunny);
 
 		this.wrapper = new RenderWrap(this.stage, this.app, offset)
