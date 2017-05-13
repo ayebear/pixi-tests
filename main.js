@@ -160,10 +160,10 @@ class Test {
 				x: -this.bunny.position.x * this.wrapper.scale,
 				y: -this.bunny.position.y * this.wrapper.scale
 			}
+			ratio += delta / 300
 			if (target.x !== newTarget.x || target.y !== newTarget.y) {
 				ratio = 0
 			}
-			ratio += delta / 300
 			target = newTarget
 			let stagePos = interpolate(this.app.stage, target, ratio)
 			this.app.stage.x = stagePos.x
