@@ -117,7 +117,7 @@ class Test {
 
 		this.stage = new PIXI.Container()
 
-		this.app = new PIXI.Application({backgroundColor: 0x1099bb});
+		this.app = new PIXI.Application(window.innerWidth - 4, window.innerHeight - 4, {backgroundColor: 0x1099bb});
 		this.app.renderer.autoResize = true
 		document.body.appendChild(this.app.view);
 
