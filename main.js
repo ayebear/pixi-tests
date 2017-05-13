@@ -28,17 +28,29 @@ class RenderWrap {
 	// Generates duplicated sprites from a single sprite
 	generateSprites(spriteToRepeat, renderSize, stageSize) {
 		// Calculate the minimum grid size to cover the rendering area
-		const width = Math.ceil((renderSize.x / this.scale) / stageSize.x)
-		const height = Math.ceil((renderSize.y / this.scale) / stageSize.y)
+		const width = Math.ceil((renderSize.x / this.scale) / stageSize.x) + 1
+		const height = Math.ceil((renderSize.y / this.scale) / stageSize.y) + 1
 
 		let container = new PIXI.Container()
 
+		// Adjust so that sprites are only on the screen
+		// TODO: Will need to take into account the app.stage "camera" position
+		const delta = {
+			x: (spriteToRepeat.x % stageSize.x - spriteToRepeat.x),
+			y: (spriteToRepeat.y % stageSize.y - spriteToRepeat.y)
+		}
+
 		// Generate the sprites
-		// console.log(`Grid size: ${width * 2} by ${height * 2}`)
 		for (let y = 0; y < height; ++y) {
 			for (let x = 0; x < width; ++x) {
 				// Duplicate the sprite for all the positions
-				let sprite = duplicateSprite(spriteToRepeat, {x: x * stageSize.x, y: y * stageSize.y})
+				const repeatOffset = {
+					x: x * stageSize.x + delta.x,
+					y: y * stageSize.y + delta.y
+				}
+				let sprite = duplicateSprite(spriteToRepeat, repeatOffset)
+				if (x == 0 && y == 0)
+					console.log(sprite.x, sprite.y)
 
 				// Add this sprite to the main rendering stage
 				container.addChild(sprite)
@@ -128,9 +140,6 @@ class Test {
 
 		// Listen for animate update
 		this.app.ticker.add(delta => {
-			// just for fun, let's rotate mr rabbit a little
-			// delta is 1 if running at 100% performance
-			// creates frame-independent tranformation
 			this.bunny.position.x += delta * this.move.x * speed;
 			this.bunny.position.y += delta * this.move.y * speed;
 
