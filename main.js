@@ -1,9 +1,16 @@
 const speed = 5
 
-function copyChildren(from, to) {
-	for (let child of from.children) {
-		to.addChild(child)
-	}
+function duplicateSprite(sprite, offset) {
+	let clone = new PIXI.Sprite(sprite.texture)
+	// clone.anchor.set(0.5)
+	clone.x = sprite.x + offset.x
+	clone.y = sprite.y + offset.y
+	clone.zIndex = sprite.zIndex
+
+	// TODO: Copy all other properties such as anchor points, scaling, colors, etc.
+	// TODO: Recursively copy objects, or flatten them out
+
+	return clone
 }
 
 class RenderWrap {
@@ -18,6 +25,29 @@ class RenderWrap {
 		this.update()
 	}
 
+	// Generates duplicated sprites from a single sprite
+	generateSprites(spriteToRepeat, renderSize, stageSize) {
+		// Calculate the minimum grid size to cover the rendering area
+		const width = Math.ceil((renderSize.x / this.scale) / stageSize.x)
+		const height = Math.ceil((renderSize.y / this.scale) / stageSize.y)
+
+		let container = new PIXI.Container()
+
+		// Generate the sprites
+		// console.log(`Grid size: ${width * 2} by ${height * 2}`)
+		for (let y = 0; y < height; ++y) {
+			for (let x = 0; x < width; ++x) {
+				// Duplicate the sprite for all the positions
+				let sprite = duplicateSprite(spriteToRepeat, {x: x * stageSize.x, y: y * stageSize.y})
+
+				// Add this sprite to the main rendering stage
+				container.addChild(sprite)
+			}
+		}
+
+		return container
+	}
+
 	// Only need to call this on resize or camera change
 	// Rebuilds the drawing stage to repeat the input stage
 	update() {
@@ -30,31 +60,14 @@ class RenderWrap {
 			x: Math.floor(this.stage.width),
 			y: Math.floor(this.stage.height)
 		}
-		// console.log(renderSize)
-		// console.log(stageSize)
-
-		// Create render texture to fit stage
-		this.gridTexture = PIXI.RenderTexture.create(stageSize.x, stageSize.y)
 
 		// Clear the grid
 		this.app.stage.removeChildren()
 
-		// Calculate the minimum grid size to cover the rendering area
-		const width = Math.ceil((renderSize.x / this.scale) / stageSize.x)
-		const height = Math.ceil((renderSize.y / this.scale) / stageSize.y)
-
-		// Generate the sprites
-		// console.log(`Grid size: ${width * 2} by ${height * 2}`)
-		for (let y = 0; y < height; ++y) {
-			for (let x = 0; x < width; ++x) {
-				// Add a sprite for this position, with the grid texture
-				let sprite = new PIXI.Sprite(this.gridTexture)
-				sprite.position.x = x * stageSize.x
-				sprite.position.y = y * stageSize.y
-
-				// Add this sprite to the main rendering stage
-				this.app.stage.addChild(sprite)
-			}
+		// Go through input children, duplicating everything, and adding it to the output stage
+		for (let child of this.stage.children) {
+			let dupes = this.generateSprites(child, renderSize, stageSize)
+			this.app.stage.addChild(dupes)
 		}
 	}
 
@@ -67,15 +80,12 @@ class RenderWrap {
 		this.app.stage.scale.y = scale
 		this.update()
 	}
-
-	render() {
-		// Render the level onto the render texture
-		this.app.renderer.render(this.stage, this.gridTexture)
-	}
 }
 
 class Test {
 	constructor() {
+		const offset = {x: 256, y: 256}
+
 		this.move = {x: 0, y: 0}
 		this.listener = new window.keypress.Listener()
 		this.registerKey('w', 'y', -1)
@@ -102,16 +112,19 @@ class Test {
 		this.background = PIXI.Sprite.fromImage('background.png')
 
 		// center the sprite's anchor point
-		this.bunny.anchor.set(0.5);
+		// this.bunny.anchor.set(0.5);
 
 		// move the sprite to the center of the screen
 		this.bunny.x = 128;
 		this.bunny.y = 128;
 
+		// let dupe = duplicateSprite(this.bunny, {x: 40, y: 40})
+
 		this.stage.addChild(this.background);
+		// this.stage.addChild(dupe);
 		this.stage.addChild(this.bunny);
 
-		this.wrapper = new RenderWrap(this.stage, this.app, {x: 256, y: 256})
+		this.wrapper = new RenderWrap(this.stage, this.app, offset)
 
 		// Listen for animate update
 		this.app.ticker.add(delta => {
@@ -121,7 +134,7 @@ class Test {
 			this.bunny.position.x += delta * this.move.x * speed;
 			this.bunny.position.y += delta * this.move.y * speed;
 
-			this.wrapper.render()
+			this.wrapper.update()
 		});
 	}
 
