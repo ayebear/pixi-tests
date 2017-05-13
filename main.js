@@ -157,8 +157,8 @@ class Test {
 
 			// Center camera
 			let newTarget = {
-				x: -this.bunny.position.x * this.wrapper.scale,
-				y: -this.bunny.position.y * this.wrapper.scale
+				x: -this.bunny.position.x * this.wrapper.scale + (this.app.renderer.width / 2),
+				y: -this.bunny.position.y * this.wrapper.scale + (this.app.renderer.height / 2)
 			}
 			ratio += delta / 300
 			if (target.x !== newTarget.x || target.y !== newTarget.y) {
