@@ -1,5 +1,12 @@
 const speed = 5
 
+function interpolate(start, end, ratio = 0.5) {
+	return {
+		x: start.x + ((end.x - start.x) * ratio),
+		y: start.y + ((end.y - start.y) * ratio)
+	}
+}
+
 function duplicateSprite(sprite, offset) {
 	let clone = new PIXI.Sprite(sprite.texture)
 	// clone.anchor.set(0.5)
@@ -139,6 +146,8 @@ class Test {
 		this.stage.addChild(this.bunny);
 
 		this.wrapper = new RenderWrap(this.stage, this.app, offset)
+		let target = {x: 0, y: 0}
+		let ratio = 0
 
 		// Listen for animate update
 		this.app.ticker.add(delta => {
@@ -147,8 +156,18 @@ class Test {
 			this.bunny.position.y += delta * this.move.y * speed;
 
 			// Center camera
-			this.app.stage.x = -this.bunny.position.x * this.wrapper.scale
-			this.app.stage.y = -this.bunny.position.y * this.wrapper.scale
+			let newTarget = {
+				x: -this.bunny.position.x * this.wrapper.scale,
+				y: -this.bunny.position.y * this.wrapper.scale
+			}
+			if (target.x !== newTarget.x || target.y !== newTarget.y) {
+				ratio = 0
+			}
+			ratio += delta / 300
+			target = newTarget
+			let stagePos = interpolate(this.app.stage, target, ratio)
+			this.app.stage.x = stagePos.x
+			this.app.stage.y = stagePos.y
 
 			this.wrapper.update()
 		});
