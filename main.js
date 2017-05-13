@@ -26,11 +26,7 @@ class RenderWrap {
 	}
 
 	// Generates duplicated sprites from a single sprite
-	generateSprites(spriteToRepeat, renderSize, stageSize) {
-		// Calculate the minimum grid size to cover the rendering area
-		const width = Math.ceil((renderSize.x / this.scale) / stageSize.x) + 1
-		const height = Math.ceil((renderSize.y / this.scale) / stageSize.y) + 1
-
+	generateSprites(spriteToRepeat, stageSize, gridSize) {
 		let container = new PIXI.Container()
 
 		// Adjust so that sprites are only on the screen, basically by a multiple of the stage size
@@ -41,16 +37,14 @@ class RenderWrap {
 		}
 
 		// Generate the sprites
-		for (let y = 0; y < height; ++y) {
-			for (let x = 0; x < width; ++x) {
+		for (let y = 0; y < gridSize.y; ++y) {
+			for (let x = 0; x < gridSize.x; ++x) {
 				// Duplicate the sprite for all the positions
 				const repeatOffset = {
 					x: x * stageSize.x - diff.x,
 					y: y * stageSize.y - diff.y
 				}
 				let sprite = duplicateSprite(spriteToRepeat, repeatOffset)
-				// if (x == 0 && y == 0)
-					// console.log(sprite.x, sprite.y)
 
 				// Add this sprite to the main rendering stage
 				container.addChild(sprite)
@@ -63,14 +57,22 @@ class RenderWrap {
 	// Only need to call this on resize or camera change
 	// Rebuilds the drawing stage to repeat the input stage
 	update() {
-		// Calculate sizes
+		// Size of the game window
 		const renderSize = {
 			x: this.app.renderer.width,
 			y: this.app.renderer.height
 		}
+
+		// Size of the original game without repeating
 		const stageSize = this.offset || {
 			x: Math.floor(this.stage.width),
 			y: Math.floor(this.stage.height)
+		}
+
+		// Calculate the minimum grid size to cover the rendering area
+		const gridSize = {
+			x: Math.ceil((renderSize.x / this.scale) / stageSize.x) + 1,
+			y: Math.ceil((renderSize.y / this.scale) / stageSize.y) + 1
 		}
 
 		// Clear the grid
@@ -78,7 +80,7 @@ class RenderWrap {
 
 		// Go through input children, duplicating everything, and adding it to the output stage
 		for (let child of this.stage.children) {
-			let dupes = this.generateSprites(child, renderSize, stageSize)
+			let dupes = this.generateSprites(child, stageSize, gridSize)
 			this.app.stage.addChild(dupes)
 		}
 	}
