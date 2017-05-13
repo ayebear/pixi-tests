@@ -32,8 +32,8 @@ class RenderWrap {
 		// Adjust so that sprites are only on the screen, basically by a multiple of the stage size
 		// TODO: Will need to take into account the app.stage "camera" position
 		const diff = {
-			x: Math.ceil(spriteToRepeat.x / stageSize.x) * stageSize.x,
-			y: Math.ceil(spriteToRepeat.y / stageSize.y) * stageSize.y
+			x: Math.ceil((spriteToRepeat.x + this.app.stage.x) / stageSize.x) * stageSize.x,
+			y: Math.ceil((spriteToRepeat.y + this.app.stage.y) / stageSize.y) * stageSize.y
 		}
 
 		// Generate the sprites
@@ -142,8 +142,13 @@ class Test {
 
 		// Listen for animate update
 		this.app.ticker.add(delta => {
+			// Move bunny sprite
 			this.bunny.position.x += delta * this.move.x * speed;
 			this.bunny.position.y += delta * this.move.y * speed;
+
+			// Center camera
+			this.app.stage.x = -this.bunny.position.x * this.wrapper.scale
+			this.app.stage.y = -this.bunny.position.y * this.wrapper.scale
 
 			this.wrapper.update()
 		});
