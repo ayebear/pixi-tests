@@ -103,9 +103,7 @@ class RenderWrap {
 }
 
 class Test {
-	constructor() {
-		const offset = {x: 256, y: 256}
-
+	constructor(resources) {
 		this.move = {x: 0, y: 0}
 		this.listener = new window.keypress.Listener()
 		this.registerKey('w', 'y', -1)
@@ -113,15 +111,18 @@ class Test {
 		this.registerKey('a', 'x', -1)
 		this.registerKey('d', 'x', 1)
 
+		// This is our small game stage, which gets repeated by the special renderer
 		this.stage = new PIXI.Container()
 
+		// Create Pixi.js application
 		this.app = new PIXI.Application(window.innerWidth - 4, window.innerHeight - 4, {backgroundColor: 0x1099bb});
 		this.app.renderer.autoResize = true
 		document.body.appendChild(this.app.view);
 
-		// create a new Sprite from an image path
-		this.bunny = PIXI.Sprite.fromImage('bunny.png')
-		this.background = PIXI.Sprite.fromImage('background.png')
+		// Create sprites from loaded textures
+		this.bunny = new PIXI.Sprite(resources.bunny.texture)
+		this.background = new PIXI.Sprite(resources.background.texture)
+		const offset = {x: this.background.width, y: this.background.height}
 
 		let circle = new PIXI.Graphics()
 			.lineStyle(4, 0xFF0000)
@@ -213,5 +214,12 @@ class Test {
 }
 
 window.onload = function() {
-	new Test()
+	const loader = PIXI.loader;
+
+	loader.add('bunny', './bunny.png')
+		.add('background', './background.png');
+
+	loader.load((loader, resources) => {
+		new Test(resources)
+	})
 }
