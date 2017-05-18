@@ -100,7 +100,6 @@ class RenderWrap {
 	set scale(scale) {
 		this.app.stage.scale.x = scale
 		this.app.stage.scale.y = scale
-		this.update()
 	}
 }
 
@@ -114,14 +113,6 @@ class Test {
 		this.registerKey('s', 'y', 1)
 		this.registerKey('a', 'x', -1)
 		this.registerKey('d', 'x', 1)
-
-		// Zooming in/out
-		this.listener.simple_combo('o', () => {
-			this.wrapper.scale = 0.98 * this.wrapper.scale
-		})
-		this.listener.simple_combo('i', () => {
-			this.wrapper.scale = 1.02 * this.wrapper.scale
-		})
 
 		this.stage = new PIXI.Container()
 
@@ -144,6 +135,19 @@ class Test {
 		this.wrapper = new RenderWrap(this.stage, this.app, offset)
 		let target = {x: 0, y: 0}
 		let ratio = 0
+		let zooming = 0
+
+		// Zooming in/out
+		this.listener.register_combo({
+			keys: 'o',
+			on_keydown: e => zooming = 0.98,
+			on_keyup: e => zooming = 0
+		})
+		this.listener.register_combo({
+			keys: 'i',
+			on_keydown: e => zooming = 1.02,
+			on_keyup: e => zooming = 0
+		})
 
 		// Listen for animate update
 		this.app.ticker.add(delta => {
@@ -151,20 +155,38 @@ class Test {
 			this.bunny.position.x += delta * this.move.x * speed;
 			this.bunny.position.y += delta * this.move.y * speed;
 
+			// Handle zooming
+			if (zooming !== 0) {
+				this.wrapper.scale *= zooming
+			}
+
 			// Center camera
 			let newTarget = {
 				x: -this.bunny.position.x * this.wrapper.scale + (this.app.renderer.width / 2),
 				y: -this.bunny.position.y * this.wrapper.scale + (this.app.renderer.height / 2)
 			}
+
+			// Update tweening ratio
 			ratio += delta / 300
-			if (target.x !== newTarget.x || target.y !== newTarget.y) {
+
+			// Don't go out of bounds - also, skip tween when zooming
+			if (ratio >= 1 || zooming !== 0) {
+				ratio = 1
+			}
+
+			// If the target changed, reset the tween (only if not currently zooming)
+			if (zooming === 0 && (target.x !== newTarget.x || target.y !== newTarget.y)) {
 				ratio = 0
 			}
+
 			target = newTarget
+
+			// Tween camera
 			let stagePos = interpolate(this.app.stage, target, ratio)
 			this.app.stage.x = stagePos.x
 			this.app.stage.y = stagePos.y
 
+			// Rebuild sprites
 			this.wrapper.update()
 		});
 	}
