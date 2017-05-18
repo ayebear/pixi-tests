@@ -123,6 +123,10 @@ class Test {
 		this.bunny = PIXI.Sprite.fromImage('bunny.png')
 		this.background = PIXI.Sprite.fromImage('background.png')
 
+		let circle = new PIXI.Graphics()
+			.lineStyle(4, 0xFF0000)
+			.drawCircle(0, 0, 32)
+
 		// move the sprite to the center of the screen
 		this.bunny.anchor.set(0.5);
 		this.bunny.x = 128;
@@ -187,6 +191,11 @@ class Test {
 
 			// Rebuild sprites
 			this.wrapper.update()
+
+			// Add center circle shape
+			circle.x = this.bunny.position.x
+			circle.y = this.bunny.position.y
+			this.app.stage.addChild(circle)
 		});
 	}
 
