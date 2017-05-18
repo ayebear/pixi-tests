@@ -153,6 +153,10 @@ class Test {
 			on_keyup: e => zooming = 0
 		})
 
+		// Toggle camera speed
+		let fastCamera = true
+		this.listener.simple_combo('c', e => fastCamera = !fastCamera)
+
 		// Listen for animate update
 		this.app.ticker.add(delta => {
 			// Move bunny sprite
@@ -165,22 +169,27 @@ class Test {
 			}
 
 			// Center camera
-			let newTarget = {
+			const newTarget = {
 				x: -this.bunny.position.x * this.wrapper.scale + (this.app.renderer.width / 2),
 				y: -this.bunny.position.y * this.wrapper.scale + (this.app.renderer.height / 2)
 			}
 
-			// Update tweening ratio
-			ratio += delta / 300
-
-			// Don't go out of bounds - also, skip tween when zooming
-			if (ratio >= 1 || zooming !== 0) {
+			if (fastCamera) {
 				ratio = 1
 			}
+			else {
+				// Update tweening ratio
+				ratio += delta / 300
 
-			// If the target changed, reset the tween (only if not currently zooming)
-			if (zooming === 0 && (target.x !== newTarget.x || target.y !== newTarget.y)) {
-				ratio = 0
+				// Don't go out of bounds - also, skip tween when zooming
+				if (ratio >= 1 || zooming !== 0) {
+					ratio = 1
+				}
+
+				// If the target changed, reset the tween (only if not currently zooming)
+				if (zooming === 0 && (target.x !== newTarget.x || target.y !== newTarget.y)) {
+					ratio = 0
+				}
 			}
 
 			target = newTarget
