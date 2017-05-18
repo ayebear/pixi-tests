@@ -25,7 +25,12 @@ class RenderWrap {
 	constructor(stageToRepeat, app, offset) {
 		this.stage = stageToRepeat
 		this.app = app
-		this.offset = offset
+
+		// Size of the original game without repeating
+		this.offset = offset || {
+			x: Math.floor(this.stage.width),
+			y: Math.floor(this.stage.height)
+		}
 
 		// this.stage is temporary stage as input
 		// this.app.stage is what we are drawing to the screen
@@ -70,16 +75,10 @@ class RenderWrap {
 			y: this.app.renderer.height
 		}
 
-		// Size of the original game without repeating
-		const stageSize = this.offset || {
-			x: Math.floor(this.stage.width),
-			y: Math.floor(this.stage.height)
-		}
-
 		// Calculate the minimum grid size to cover the rendering area
 		const gridSize = {
-			x: Math.ceil(renderSize.x / (stageSize.x * this.scale)) + 1,
-			y: Math.ceil(renderSize.y / (stageSize.y * this.scale)) + 1
+			x: Math.ceil(renderSize.x / (this.offset.x * this.scale)) + 1,
+			y: Math.ceil(renderSize.y / (this.offset.y * this.scale)) + 1
 		}
 
 		// Clear the grid
@@ -87,7 +86,7 @@ class RenderWrap {
 
 		// Go through input children, duplicating everything, and adding it to the output stage
 		for (let child of this.stage.children) {
-			let dupes = this.generateSprites(child, stageSize, gridSize)
+			let dupes = this.generateSprites(child, this.offset, gridSize)
 			this.app.stage.addChild(dupes)
 		}
 	}
@@ -122,7 +121,6 @@ class Test {
 		// Create sprites from loaded textures
 		this.bunny = new PIXI.Sprite(resources.bunny.texture)
 		this.background = new PIXI.Sprite(resources.background.texture)
-		const offset = {x: this.background.width, y: this.background.height}
 
 		let circle = new PIXI.Graphics()
 			.lineStyle(4, 0xFF0000)
@@ -136,7 +134,8 @@ class Test {
 		this.stage.addChild(this.background);
 		this.stage.addChild(this.bunny);
 
-		this.wrapper = new RenderWrap(this.stage, this.app, offset)
+		this.wrapper = new RenderWrap(this.stage, this.app)
+
 		let target = {x: 0, y: 0}
 		let ratio = 0
 		let zooming = 0
