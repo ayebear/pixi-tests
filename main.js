@@ -38,10 +38,9 @@ class RenderWrap {
 		let container = new PIXI.Container()
 
 		// Adjust so that sprites are only on the screen, basically by a multiple of the stage size
-		// TODO: Will need to take into account the app.stage "camera" position
 		const diff = {
-			x: Math.ceil((spriteToRepeat.x + this.app.stage.x) / stageSize.x) * stageSize.x,
-			y: Math.ceil((spriteToRepeat.y + this.app.stage.y) / stageSize.y) * stageSize.y
+			x: Math.ceil((spriteToRepeat.x + (this.app.stage.x / this.scale)) / stageSize.x) * stageSize.x,
+			y: Math.ceil((spriteToRepeat.y + (this.app.stage.y / this.scale)) / stageSize.y) * stageSize.y
 		}
 
 		// Generate the sprites
@@ -79,8 +78,8 @@ class RenderWrap {
 
 		// Calculate the minimum grid size to cover the rendering area
 		const gridSize = {
-			x: Math.ceil((renderSize.x / this.scale) / stageSize.x) + 1,
-			y: Math.ceil((renderSize.y / this.scale) / stageSize.y) + 1
+			x: Math.ceil(renderSize.x / (stageSize.x * this.scale)) + 1,
+			y: Math.ceil(renderSize.y / (stageSize.y * this.scale)) + 1
 		}
 
 		// Clear the grid
