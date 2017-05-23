@@ -7,8 +7,8 @@ function interpolate(start, end, ratio = 0.5) {
 	}
 }
 
-// Clones a pixi sprite/container
-function cloneContainer(container, offset = {x: 0, y: 0}) {
+// Clones a parent pixi sprite/container
+function cloneContainer(container) {
 	let clone
 
 	if (container.texture) {
@@ -23,26 +23,35 @@ function cloneContainer(container, offset = {x: 0, y: 0}) {
 		clone = new PIXI.Container()
 	}
 
-	clone.x = container.x + offset.x
-	clone.y = container.y + offset.y
+	// Copy position
+	clone.x = container.x
+	clone.y = container.y
 
 	return clone
 }
 
-function dupe(container, offset) {
+// Clones a pixi container recursively
+function dupe(container) {
 
 	// Clone current, parent sprite
-	let clone = cloneContainer(container, offset)
+	let clone = cloneContainer(container)
 
 	if (container.children) {
 		for (let child of container.children) {
-			// Uses the offset only for the root container
+			// Duplicate children recursively
 			clone.addChild(dupe(child))
 		}
 	}
 	return clone
 }
 
+/*
+TODO:
+	Support relative offsets (to create misalignments in the grid)
+	Support "packed" relative offsets, so there are never any gaps
+	Support flipping
+	Support rotation
+*/
 class RenderWrap {
 	constructor(stageToRepeat, app, offset) {
 		this.stage = stageToRepeat
@@ -78,7 +87,9 @@ class RenderWrap {
 					x: x * stageSize.x - diff.x,
 					y: y * stageSize.y - diff.y
 				}
-				let sprite = dupe(spriteToRepeat, repeatOffset)
+				let sprite = dupe(spriteToRepeat)
+				sprite.x = spriteToRepeat.x + repeatOffset.x
+				sprite.y = spriteToRepeat.y + repeatOffset.y
 
 				// Add this sprite to the main rendering stage
 				container.addChild(sprite)
@@ -134,6 +145,8 @@ class Test {
 
 		// This is our small game stage, which gets repeated by the special renderer
 		this.stage = new PIXI.Container()
+		this.gameStage = new PIXI.Container()
+		this.stage.addChild(this.gameStage)
 
 		// Create Pixi.js application
 		this.app = new PIXI.Application(window.innerWidth - 4, window.innerHeight - 4, {backgroundColor: 0x1099bb});
@@ -153,8 +166,8 @@ class Test {
 		this.bunny.x = 128;
 		this.bunny.y = 128;
 
-		this.stage.addChild(this.background);
-		this.stage.addChild(this.bunny);
+		this.gameStage.addChild(this.background);
+		this.gameStage.addChild(this.bunny);
 
 		this.wrapper = new RenderWrap(this.stage, this.app)
 
