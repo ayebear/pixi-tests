@@ -115,6 +115,8 @@ class Test {
 		// Create sprites from loaded textures
 		this.bunny = new PIXI.Sprite(resources.bunny.texture)
 		this.background = new PIXI.Sprite(resources.background.texture)
+		this.wall = new PIXI.Sprite(resources.wall.texture)
+		this.package = new PIXI.Sprite(resources.package.texture)
 
 		let circle = new PIXI.Graphics()
 			.lineStyle(4, 0xFF0000)
@@ -128,9 +130,14 @@ class Test {
 		this.bunny.zIndex = 5
 
 		this.stage.addChild(this.background)
+		this.stage.addChild(this.wall)
+		this.stage.addChild(this.package)
 		this.stage.addChild(this.bunny)
 
 		this.wrapper = new RenderWrap(this.stage.buckets, this.app)
+
+		this.wall.x = this.wrapper.offset.x - this.wall.width
+		this.wall.y = this.wrapper.offset.y - this.wall.height
 
 		let target = {x: 0, y: 0}
 		let ratio = 0
@@ -219,10 +226,12 @@ class Test {
 }
 
 window.onload = function() {
-	const loader = PIXI.loader;
+	const loader = PIXI.loader
 
 	loader.add('bunny', './bunny.png')
-		.add('background', './background.png');
+		.add('background', './background.png')
+		.add('wall', './wall.png')
+		.add('package', './package.png')
 
 	loader.load((loader, resources) => {
 		new Test(resources)
