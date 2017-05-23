@@ -7,17 +7,39 @@ function interpolate(start, end, ratio = 0.5) {
 	}
 }
 
-function duplicateSprite(sprite, offset) {
-	let clone = new PIXI.Sprite(sprite.texture)
-	clone.anchor.x = sprite.anchor.x
-	clone.anchor.y = sprite.anchor.y
-	clone.x = sprite.x + offset.x
-	clone.y = sprite.y + offset.y
-	clone.zIndex = sprite.zIndex
+// Clones a pixi sprite/container
+function cloneContainer(container, offset = {x: 0, y: 0}) {
+	let clone
 
-	// TODO: Copy all other properties such as scaling, colors, etc.
-	// TODO: Recursively copy objects, or flatten them out
+	if (container.texture) {
+		// Assume container is a pixi sprite
+		// TODO: Copy all other properties such as scaling, colors, etc.
+		clone = new PIXI.Sprite(container.texture)
+		clone.anchor.x = container.anchor.x
+		clone.anchor.y = container.anchor.y
+		clone.zIndex = container.zIndex
+	} else {
+		// Assume container is a pixi container
+		clone = new PIXI.Container()
+	}
 
+	clone.x = container.x + offset.x
+	clone.y = container.y + offset.y
+
+	return clone
+}
+
+function dupe(container, offset) {
+
+	// Clone current, parent sprite
+	let clone = cloneContainer(container, offset)
+
+	if (container.children) {
+		for (let child of container.children) {
+			// Uses the offset only for the root container
+			clone.addChild(dupe(child))
+		}
+	}
 	return clone
 }
 
@@ -56,7 +78,7 @@ class RenderWrap {
 					x: x * stageSize.x - diff.x,
 					y: y * stageSize.y - diff.y
 				}
-				let sprite = duplicateSprite(spriteToRepeat, repeatOffset)
+				let sprite = dupe(spriteToRepeat, repeatOffset)
 
 				// Add this sprite to the main rendering stage
 				container.addChild(sprite)
