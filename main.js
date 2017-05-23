@@ -1,50 +1,5 @@
 const speed = 5
 
-function interpolate(start, end, ratio = 0.5) {
-	return {
-		x: start.x + ((end.x - start.x) * ratio),
-		y: start.y + ((end.y - start.y) * ratio)
-	}
-}
-
-// Clones a parent pixi sprite/container
-function cloneContainer(container) {
-	let clone
-
-	if (container.texture) {
-		// Assume container is a pixi sprite
-		// TODO: Copy all other properties such as scaling, colors, etc.
-		clone = new PIXI.Sprite(container.texture)
-		clone.anchor.x = container.anchor.x
-		clone.anchor.y = container.anchor.y
-		clone.zIndex = container.zIndex
-	} else {
-		// Assume container is a pixi container
-		clone = new PIXI.Container()
-	}
-
-	// Copy position
-	clone.x = container.x
-	clone.y = container.y
-
-	return clone
-}
-
-// Clones a pixi container recursively
-function dupe(container) {
-
-	// Clone current, parent sprite
-	let clone = cloneContainer(container)
-
-	if (container.children) {
-		for (let child of container.children) {
-			// Duplicate children recursively
-			clone.addChild(dupe(child))
-		}
-	}
-	return clone
-}
-
 /*
 TODO:
 	Support relative offsets (to create misalignments in the grid)
@@ -144,14 +99,12 @@ class Test {
 		this.registerKey('d', 'x', 1)
 
 		// This is our small game stage, which gets repeated by the special renderer
-		this.stage = new PIXI.Container()
-		this.gameStage = new PIXI.Container()
-		this.stage.addChild(this.gameStage)
+		this.stage = new ZBuckets()
 
 		// Create Pixi.js application
-		this.app = new PIXI.Application(window.innerWidth - 4, window.innerHeight - 4, {backgroundColor: 0x1099bb});
+		this.app = new PIXI.Application(window.innerWidth - 4, window.innerHeight - 4, {backgroundColor: 0x1099bb})
 		this.app.renderer.autoResize = true
-		document.body.appendChild(this.app.view);
+		document.body.appendChild(this.app.view)
 
 		// Create sprites from loaded textures
 		this.bunny = new PIXI.Sprite(resources.bunny.texture)
@@ -160,16 +113,18 @@ class Test {
 		let circle = new PIXI.Graphics()
 			.lineStyle(4, 0xFF0000)
 			.drawCircle(0, 0, 32)
+		circle.zIndex = 20
 
-		// move the sprite to the center of the screen
-		this.bunny.anchor.set(0.5);
-		this.bunny.x = 128;
-		this.bunny.y = 128;
+		// Setup bunny sprite
+		this.bunny.anchor.set(0.5)
+		this.bunny.x = 128
+		this.bunny.y = 128
+		this.bunny.zIndex = 5
 
-		this.gameStage.addChild(this.background);
-		this.gameStage.addChild(this.bunny);
+		this.stage.addChild(this.background)
+		this.stage.addChild(this.bunny)
 
-		this.wrapper = new RenderWrap(this.stage, this.app)
+		this.wrapper = new RenderWrap(this.stage.buckets, this.app)
 
 		let target = {x: 0, y: 0}
 		let ratio = 0
@@ -194,8 +149,8 @@ class Test {
 		// Listen for animate update
 		this.app.ticker.add(delta => {
 			// Move bunny sprite
-			this.bunny.position.x += delta * this.move.x * speed;
-			this.bunny.position.y += delta * this.move.y * speed;
+			this.bunny.position.x += delta * this.move.x * speed
+			this.bunny.position.y += delta * this.move.y * speed
 
 			// Handle zooming
 			if (zooming !== 0) {
