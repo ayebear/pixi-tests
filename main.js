@@ -1,4 +1,5 @@
-const speed = 5
+const speed = 500
+const dt = 0.0166666666666666
 
 /*
 TODO:
@@ -162,8 +163,8 @@ class Test {
 		// Listen for animate update
 		this.app.ticker.add(delta => {
 			// Move bunny sprite
-			this.bunny.x += delta * this.move.x * speed
-			this.bunny.y += delta * this.move.y * speed
+			this.bunny.x += this.move.x * speed * dt
+			this.bunny.y += this.move.y * speed * dt
 			this.wrapper.wrap(this.bunny)
 
 			// Handle zooming
@@ -182,7 +183,7 @@ class Test {
 			}
 			else {
 				// Update tweening ratio
-				ratio += delta / 300
+				ratio += dt / 2
 
 				// Don't go out of bounds - also, skip tween when zooming
 				if (ratio >= 1 || zooming !== 0) {
