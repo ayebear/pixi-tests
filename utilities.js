@@ -1,3 +1,7 @@
+function mod(number, modBy) {
+	return ((number % modBy) + modBy) % modBy
+}
+
 function interpolate(start, end, ratio = 0.5) {
 	return {
 		x: start.x + ((end.x - start.x) * ratio),

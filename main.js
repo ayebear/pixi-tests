@@ -24,6 +24,12 @@ class RenderWrap {
 		this.update()
 	}
 
+	// Keep a sprite in bounds
+	wrap(sprite) {
+		sprite.x = mod(sprite.x, this.offset.x)
+		sprite.y = mod(sprite.y, this.offset.y)
+	}
+
 	// Generates duplicated sprites from a single sprite
 	generateSprites(spriteToRepeat, stageSize, gridSize) {
 		let container = new PIXI.Container()
@@ -149,8 +155,9 @@ class Test {
 		// Listen for animate update
 		this.app.ticker.add(delta => {
 			// Move bunny sprite
-			this.bunny.position.x += delta * this.move.x * speed
-			this.bunny.position.y += delta * this.move.y * speed
+			this.bunny.x += delta * this.move.x * speed
+			this.bunny.y += delta * this.move.y * speed
+			this.wrapper.wrap(this.bunny)
 
 			// Handle zooming
 			if (zooming !== 0) {
@@ -159,8 +166,8 @@ class Test {
 
 			// Center camera
 			const newTarget = {
-				x: -this.bunny.position.x * this.wrapper.scale + (this.app.renderer.width / 2),
-				y: -this.bunny.position.y * this.wrapper.scale + (this.app.renderer.height / 2)
+				x: -this.bunny.x * this.wrapper.scale + (this.app.renderer.width / 2),
+				y: -this.bunny.y * this.wrapper.scale + (this.app.renderer.height / 2)
 			}
 
 			if (fastCamera) {
@@ -192,8 +199,8 @@ class Test {
 			this.wrapper.update()
 
 			// Add center circle shape
-			circle.x = this.bunny.position.x
-			circle.y = this.bunny.position.y
+			circle.x = this.bunny.x
+			circle.y = this.bunny.y
 			this.app.stage.addChild(circle)
 		});
 	}
