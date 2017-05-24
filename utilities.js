@@ -10,7 +10,7 @@ function interpolate(start, end, ratio = 0.5) {
 }
 
 // Clones a parent pixi sprite/container
-function cloneContainer(container) {
+function dupeObject(container) {
 	let clone
 
 	if (container.texture) {
@@ -37,7 +37,7 @@ function cloneContainer(container) {
 function dupe(container) {
 
 	// Clone current, parent sprite
-	let clone = cloneContainer(container)
+	let clone = dupeObject(container)
 
 	if (container.children) {
 		for (let child of container.children) {

@@ -165,6 +165,7 @@ class Test {
 			// Move bunny sprite
 			this.bunny.x += this.move.x * speed * dt
 			this.bunny.y += this.move.y * speed * dt
+			const old = {x: this.bunny.x, y: this.bunny.y}
 			this.wrapper.wrap(this.bunny)
 
 			// Handle zooming
@@ -176,6 +177,10 @@ class Test {
 			const newTarget = {
 				x: -this.bunny.x * this.wrapper.scale + (this.app.renderer.width / 2),
 				y: -this.bunny.y * this.wrapper.scale + (this.app.renderer.height / 2)
+			}
+			const begin = {
+				x: (old.x === this.bunny.x ? this.app.stage.x : this.app.stage.x + ((old.x - this.bunny.x) * this.wrapper.scale)),
+				y: (old.y === this.bunny.y ? this.app.stage.y : this.app.stage.y + ((old.y - this.bunny.y) * this.wrapper.scale))
 			}
 
 			if (fastCamera) {
@@ -199,7 +204,7 @@ class Test {
 			target = newTarget
 
 			// Tween camera
-			let stagePos = interpolate(this.app.stage, target, ratio)
+			let stagePos = interpolate(begin, target, ratio)
 			this.app.stage.x = stagePos.x
 			this.app.stage.y = stagePos.y
 
