@@ -114,10 +114,21 @@ class Test {
 		document.body.appendChild(this.app.view)
 
 		// Create sprites from loaded textures
-		this.bunny = new PIXI.Sprite(resources.bunny.texture)
-		this.background = new PIXI.Sprite(resources.background.texture)
-		this.wall = new PIXI.Sprite(resources.wall.texture)
-		this.package = new PIXI.Sprite(resources.package.texture)
+		let bunny = new PIXI.Sprite(resources.bunny.texture)
+		let background = new PIXI.Sprite(resources.background.texture)
+		let packageSprite = new PIXI.Sprite(resources.package.texture)
+		packageSprite.x = 200
+		packageSprite.y = 40
+
+		// Generate trees
+		let baseTree = new PIXI.Sprite(resources.tree.texture)
+		baseTree.zIndex = 10
+		for (let i = 0; i < 6; ++i) {
+			let tree = dupe(baseTree)
+			tree.x = (i % 3) * 100 + 300 + (i % 2) * 40
+			tree.y = (i % 2) * 100 + 160 - (i % 3) * 40
+			this.stage.addChild(tree)
+		}
 
 		let circle = new PIXI.Graphics()
 			.lineStyle(4, 0xFF0000)
@@ -125,20 +136,16 @@ class Test {
 		circle.zIndex = 20
 
 		// Setup bunny sprite
-		this.bunny.anchor.set(0.5)
-		this.bunny.x = 128
-		this.bunny.y = 128
-		this.bunny.zIndex = 5
+		bunny.anchor.set(0.5)
+		bunny.x = 128
+		bunny.y = 128
+		bunny.zIndex = 5
 
-		this.stage.addChild(this.background)
-		this.stage.addChild(this.wall)
-		this.stage.addChild(this.package)
-		this.stage.addChild(this.bunny)
+		this.stage.addChild(background)
+		this.stage.addChild(packageSprite)
+		this.stage.addChild(bunny)
 
 		this.wrapper = new RenderWrap(this.stage.buckets, this.app)
-
-		this.wall.x = this.wrapper.offset.x - this.wall.width
-		this.wall.y = this.wrapper.offset.y - this.wall.height
 
 		let target = {x: 0, y: 0}
 		let ratio = 0
@@ -163,10 +170,10 @@ class Test {
 		// Listen for animate update
 		this.app.ticker.add(delta => {
 			// Move bunny sprite
-			this.bunny.x += this.move.x * speed * dt
-			this.bunny.y += this.move.y * speed * dt
-			const old = {x: this.bunny.x, y: this.bunny.y}
-			this.wrapper.wrap(this.bunny)
+			bunny.x += this.move.x * speed * dt
+			bunny.y += this.move.y * speed * dt
+			const old = {x: bunny.x, y: bunny.y}
+			this.wrapper.wrap(bunny)
 
 			// Handle zooming
 			if (zooming !== 0) {
@@ -175,12 +182,12 @@ class Test {
 
 			// Center camera
 			const newTarget = {
-				x: -this.bunny.x * this.wrapper.scale + (this.app.renderer.width / 2),
-				y: -this.bunny.y * this.wrapper.scale + (this.app.renderer.height / 2)
+				x: -bunny.x * this.wrapper.scale + (this.app.renderer.width / 2),
+				y: -bunny.y * this.wrapper.scale + (this.app.renderer.height / 2)
 			}
 			const begin = {
-				x: (old.x === this.bunny.x ? this.app.stage.x : this.app.stage.x + ((old.x - this.bunny.x) * this.wrapper.scale)),
-				y: (old.y === this.bunny.y ? this.app.stage.y : this.app.stage.y + ((old.y - this.bunny.y) * this.wrapper.scale))
+				x: (old.x === bunny.x ? this.app.stage.x : this.app.stage.x + ((old.x - bunny.x) * this.wrapper.scale)),
+				y: (old.y === bunny.y ? this.app.stage.y : this.app.stage.y + ((old.y - bunny.y) * this.wrapper.scale))
 			}
 
 			if (fastCamera) {
@@ -212,8 +219,8 @@ class Test {
 			this.wrapper.update()
 
 			// Add center circle shape
-			circle.x = this.bunny.x
-			circle.y = this.bunny.y
+			circle.x = bunny.x
+			circle.y = bunny.y
 			this.app.stage.addChild(circle)
 		});
 	}
@@ -236,7 +243,7 @@ window.onload = function() {
 
 	loader.add('bunny', './bunny.png')
 		.add('background', './background.png')
-		.add('wall', './wall.png')
+		.add('tree', './tree.png')
 		.add('package', './package.png')
 
 	loader.load((loader, resources) => {
